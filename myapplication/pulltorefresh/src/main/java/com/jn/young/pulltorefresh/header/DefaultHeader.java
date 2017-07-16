@@ -26,4 +26,24 @@ public class DefaultHeader extends View implements IPtrHeader {
     public boolean canPull() {
         return false;
     }
+
+    @Override
+    public void onReset() {
+
+    }
+
+    @Override
+    public void onRefreshing() {
+
+    }
+
+    @Override
+    public void onPullToRefresh() {
+
+    }
+
+    @Override
+    public void onPull(float len) {
+
+    }
 }
