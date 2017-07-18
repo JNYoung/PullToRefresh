@@ -2,16 +2,20 @@ package com.jn.young.pulltorefresh;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.jn.young.pulltorefresh.header.DefaultHeader;
 import com.jn.young.pulltorefresh.header.IPtrHeader;
+import com.jn.young.pulltorefresh.lifecircle.PtrState;
 import com.jn.young.pulltorefresh.utils.MultiDIstanceListener;
 import com.jn.young.pulltorefresh.utils.PtrHandler;
 import com.jn.young.pulltorefresh.utils.PtrIndicator;
 import com.jn.young.pulltorefresh.utils.PtrObserver;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by zjy on 2017/7/15.
@@ -19,6 +23,7 @@ import com.jn.young.pulltorefresh.utils.PtrObserver;
 
 public class PtrFrame extends ViewGroup {
 
+    private final String LOG_TAG = "PTR_FRAME";
     PtrIndicator mIndicator;
     MultiDIstanceListener mMultiDIstanceListener;
     PtrObserver mObserver;
@@ -109,6 +114,43 @@ public class PtrFrame extends ViewGroup {
 
     public View getHeader() {
         return mHeader;
+    }
+
+    /**
+     * 取数据，不需要显示刷新状态
+     * TODO: do think twice here
+     * @param forceRefresh 是否需要强制刷新
+     */
+    public void refetchData(boolean forceRefresh) {
+        if (forceRefresh) {
+            Log.i(LOG_TAG, "forceRefresh may lead to some uncertain status");
+            if (mObserver != null && mHandler != null) {
+                if (mObserver.stopFetchOps()) {
+                    mHandler.onRefetchData(mObserver);
+                }
+            }
+        } else {
+            if (mObserver != null && mHandler != null) {
+                if (mHandler.getCurrentState() != PtrState.RESET){
+                    return;
+                }
+                mHandler.onRefetchData(mObserver);
+            }
+        }
+    }
+
+    /**
+     * 从外部调用刷新状态
+     * @param needScroll
+     * @param forceRefresh
+     */
+    public void setRefreshing(boolean needScroll, boolean forceRefresh){
+        if (!needScroll) {
+            refetchData(forceRefresh);
+        } else {
+            //1.判断是否允许强制刷新，如果允许的话，则判断当前的状态，如果为正在刷新状态，则重新取回数据，如果是正在滚动状态，需要停止滚动，并且滚动到刷新位置进行下一次刷新
+            //2.observer的状态需要正确置位
+        }
     }
 
 

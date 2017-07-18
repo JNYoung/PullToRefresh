@@ -9,4 +9,10 @@ import com.jn.young.pulltorefresh.lifecircle.IPtrActionCirlce;
 
 public abstract class PtrObserver implements IPtrActionCirlce {
     public abstract boolean canPull();
+
+    /**
+     * used when start another fetch Opration
+     * @return if the fetch stops
+     */
+    public abstract boolean stopFetchOps();
 }
