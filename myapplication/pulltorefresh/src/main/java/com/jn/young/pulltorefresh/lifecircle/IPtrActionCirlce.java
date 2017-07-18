@@ -2,6 +2,20 @@ package com.jn.young.pulltorefresh.lifecircle;
 
 /**
  * Created by zjy on 2017/7/16.
+ * deal with manual scroll
+ * reset
+ * ↓
+ * onpull
+ * ↓
+ * onPullToRefresh
+ * ↓
+ * onRefreshing
+ * ↓
+ * onRefreshComplete
+ * ↓
+ * （Scroll back）
+ * ↓
+ * reset
  */
 
 public interface IPtrActionCirlce {
@@ -28,4 +42,9 @@ public interface IPtrActionCirlce {
      * @param len 下拉的距离
      */
     void onPull(float len);
+
+    /**
+     * 刷新完成的操作，接下来是回滚
+     */
+    void onRefreshComplete();
 }

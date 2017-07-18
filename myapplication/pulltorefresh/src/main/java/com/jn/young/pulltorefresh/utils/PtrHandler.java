@@ -1,6 +1,7 @@
 package com.jn.young.pulltorefresh.utils;
 
 import android.view.View;
+import android.widget.AbsListView;
 
 import com.jn.young.pulltorefresh.header.IPtrHeader;
 import com.jn.young.pulltorefresh.lifecircle.PtrState;
@@ -38,13 +39,66 @@ public class PtrHandler {
      * @return
      */
     private boolean canContentPull(View content){
-        return true;
+        return !canContentScroll(content);
     }
 
+    private boolean canContentScroll (View view) {
+        if (android.os.Build.VERSION.SDK_INT < 14) {
+            if (view instanceof AbsListView) {
+                final AbsListView absListView = (AbsListView) view;
+                return absListView.getChildCount() > 0
+                        && (absListView.getFirstVisiblePosition() > 0 || absListView.getChildAt(0)
+                        .getTop() < absListView.getPaddingTop());
+            } else {
+                return view.getScrollY() > 0;
+            }
+        } else {
+            return view.canScrollVertically(-1);
+        }
+    }
+
+    public void onReset(View header, PtrObserver ptrObserver) {
+        ((IPtrHeader)header).onReset();
+        if (ptrObserver != null) {
+            ptrObserver.onReset();
+        }
+        setState(PtrState.RESET);
+
+    }
     public void onPull(float lenth, View header,  PtrObserver ptrObserver) {
         ((IPtrHeader)header).onPull(lenth);
         if (ptrObserver != null) {
             ptrObserver.onPull(lenth);
+        }
+    }
+
+    public void onPulltoRefresh ( View header,  PtrObserver ptrObserver) {
+        ((IPtrHeader)header).onPullToRefresh();
+        if (ptrObserver != null) {
+            ptrObserver.onPullToRefresh();
+        }
+        setState(PtrState.PULLTOREFRESH);
+    }
+
+    public void onRefresh(View header, PtrObserver observer) {
+        ((IPtrHeader)header).onRefreshing();
+        if (observer != null) {
+            observer.onRefreshing();
+        }
+        setState(PtrState.REFRESHING);
+    }
+
+    public void onRefetchData(PtrObserver observer) {
+        setState(PtrState.REFRESHING);
+        if (observer != null) {
+            observer.onRefreshing();
+        }
+    }
+
+    public void onRefreshComplete(View header, PtrObserver ptrObserver) {
+        ((IPtrHeader)header).onRefreshComplete();
+        if (ptrObserver != null) {
+            ptrObserver.onRefreshComplete();
         }
     }
 
