@@ -31,6 +31,7 @@ public class PtrFrame extends ViewGroup {
 
     View mHeader;
     View mContent;
+    private int mHeaderHeight;
 
     public PtrFrame(Context context) {
         super(context);
@@ -75,6 +76,7 @@ public class PtrFrame extends ViewGroup {
             //大部分情况下都可以使用这种情况，因为头部默认是写死的或者是可以自由改变的，所以只用写内容，头部自动生成就可以了
             mContent = getChildAt(0);
             mHeader = getDefaultHeader();
+            addView(mHeader, 0);
         } else {
 
         }
@@ -158,11 +160,57 @@ public class PtrFrame extends ViewGroup {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        if (mHeader != null) {
+            measureChild(mHeader, widthMeasureSpec, heightMeasureSpec);
+            MarginLayoutParams lp = (MarginLayoutParams) mHeader.getLayoutParams();
+            mHeaderHeight = mHeader.getMeasuredHeight() + lp.topMargin + lp.bottomMargin;
+        }
+
+        if (mContent != null) {
+            measureContent(mContent, widthMeasureSpec, heightMeasureSpec);
+        }
+
+
+    }
+
+    private void measureContent(View content,
+                                int parentWidthMeasureSpec,
+                                int parentHeightMeasureSpec) {
+        final MarginLayoutParams lp = (MarginLayoutParams) content.getLayoutParams();
+
+        final int childWidthMeasureSpec = getChildMeasureSpec(parentWidthMeasureSpec,
+                getPaddingLeft() + getPaddingRight() + lp.leftMargin + lp.rightMargin, lp.width);
+        final int childHeightMeasureSpec = getChildMeasureSpec(parentHeightMeasureSpec,
+                getPaddingTop() + getPaddingBottom() + lp.topMargin, lp.height);
+
+        content.measure(childWidthMeasureSpec, childHeightMeasureSpec);
     }
 
     @Override
     protected void onLayout(boolean b, int i, int i1, int i2, int i3) {
+        layoutChildren();
+    }
 
+    private void layoutChildren() {
+        int paddingLeft = getPaddingLeft();
+        int paddingTop = getPaddingTop();
+
+        if (mHeader != null) {
+            MarginLayoutParams lp = (MarginLayoutParams) mHeader.getLayoutParams();
+            final int left = paddingLeft + lp.leftMargin;
+            final int top = paddingTop + lp.topMargin - mHeaderHeight;
+            final int right = left + mHeader.getMeasuredWidth();
+            final int bottom = top + mHeader.getMeasuredHeight();
+            mHeader.layout(left, top, right, bottom);
+        }
+        if (mContent != null) {
+            MarginLayoutParams lp = (MarginLayoutParams) mContent.getLayoutParams();
+            final int left = paddingLeft + lp.leftMargin;
+            final int top = paddingTop + lp.topMargin;
+            final int right = left + mContent.getMeasuredWidth();
+            final int bottom = top + mContent.getMeasuredHeight();
+            mContent.layout(left, top, right, bottom);
+        }
     }
 
     @Override
@@ -178,5 +226,38 @@ public class PtrFrame extends ViewGroup {
         return super.onTouchEvent(event);
     }
 
+    @Override
+    protected ViewGroup.LayoutParams generateDefaultLayoutParams() {
+        return new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+    }
 
+    @Override
+    protected ViewGroup.LayoutParams generateLayoutParams(ViewGroup.LayoutParams p) {
+        return new LayoutParams(p);
+    }
+
+    @Override
+    public ViewGroup.LayoutParams generateLayoutParams(AttributeSet attrs) {
+        return new LayoutParams(getContext(), attrs);
+    }
+
+    public static class LayoutParams extends MarginLayoutParams {
+
+        public LayoutParams(Context c, AttributeSet attrs) {
+            super(c, attrs);
+        }
+
+        public LayoutParams(int width, int height) {
+            super(width, height);
+        }
+
+        @SuppressWarnings({"unused"})
+        public LayoutParams(MarginLayoutParams source) {
+            super(source);
+        }
+
+        public LayoutParams(ViewGroup.LayoutParams source) {
+            super(source);
+        }
+    }
 }

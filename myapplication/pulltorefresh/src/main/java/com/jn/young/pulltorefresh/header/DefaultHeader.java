@@ -46,4 +46,9 @@ public class DefaultHeader extends View implements IPtrHeader {
     public void onPull(float len) {
 
     }
+
+    @Override
+    public void onRefreshComplete() {
+
+    }
 }
