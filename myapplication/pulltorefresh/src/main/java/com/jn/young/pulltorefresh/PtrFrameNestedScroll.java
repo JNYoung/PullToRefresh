@@ -5,7 +5,6 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 
 import com.jn.young.pulltorefresh.header.DefaultHeader;
@@ -22,7 +21,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Created by zjy on 2017/7/15.
  */
 
-public class PtrFrame extends ViewGroup {
+public class PtrFrameNestedScroll extends ViewGroup {
 
     private final String LOG_TAG = "PTR_FRAME";
     PtrIndicator mIndicator;
@@ -33,19 +32,18 @@ public class PtrFrame extends ViewGroup {
     View mHeader;
     View mContent;
     private int mHeaderHeight;
-    private int mTouchSlop;
 
-    public PtrFrame(Context context) {
+    public PtrFrameNestedScroll(Context context) {
         super(context);
         _init(context, null);
     }
 
-    public PtrFrame(Context context, AttributeSet attrs) {
+    public PtrFrameNestedScroll(Context context, AttributeSet attrs) {
         super(context, attrs);
         _init(context, attrs);
     }
 
-    public PtrFrame(Context context, AttributeSet attrs, int defStyleAttr) {
+    public PtrFrameNestedScroll(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         _init(context, attrs);
     }
@@ -53,8 +51,6 @@ public class PtrFrame extends ViewGroup {
     private void _init(Context context, AttributeSet attributeSet) {
         mIndicator = new PtrIndicator();
         mHandler = new PtrHandler();
-        ViewConfiguration config = ViewConfiguration.get(context);
-        mTouchSlop = config.getScaledTouchSlop();
 
     }
 
@@ -62,9 +58,9 @@ public class PtrFrame extends ViewGroup {
     protected void onFinishInflate() {
 
         int childrenCount = getChildCount();
-        if (childrenCount > 2) {
+        if (childrenCount >2) {
             throw new IllegalArgumentException("should have children less than 3");
-        } else if (childrenCount == 2) {
+        } else if (childrenCount == 2){
             View child1 = getChildAt(0);
             View child2 = getChildAt(1);
             if (child2 instanceof IPtrHeader) {
@@ -93,25 +89,20 @@ public class PtrFrame extends ViewGroup {
     }
 
 
-    private View getDefaultHeader() {
+    private View getDefaultHeader(){
         return new DefaultHeader(getContext());
     }
 
-    public void setObserver(PtrObserver ptrObserver) {
+    public void setObserver(PtrObserver ptrObserver){
         mObserver = ptrObserver;
     }
 
     /**
      * 为了应对多重下拉做的东西，拉到不同长度有不同的反应
-     *
      * @param listener
      */
     public void setMultiDIstanceListener(MultiDIstanceListener listener) {
         mMultiDIstanceListener = listener;
-    }
-
-    public View getHeader() {
-        return mHeader;
     }
 
     public void setHeader(View header) {
@@ -123,10 +114,13 @@ public class PtrFrame extends ViewGroup {
         requestLayout();
     }
 
+    public View getHeader() {
+        return mHeader;
+    }
+
     /**
      * 取数据，不需要显示刷新状态
      * TODO: do think twice here
-     *
      * @param forceRefresh 是否需要强制刷新
      */
     public void refetchData(boolean forceRefresh) {
@@ -139,7 +133,7 @@ public class PtrFrame extends ViewGroup {
             }
         } else {
             if (mObserver != null && mHandler != null) {
-                if (mHandler.getCurrentState() != PtrState.RESET) {
+                if (mHandler.getCurrentState() != PtrState.RESET){
                     return;
                 }
                 mHandler.onRefetchData(mObserver);
@@ -149,11 +143,10 @@ public class PtrFrame extends ViewGroup {
 
     /**
      * 从外部调用刷新状态
-     *
      * @param needScroll
      * @param forceRefresh
      */
-    public void setRefreshing(boolean needScroll, boolean forceRefresh) {
+    public void setRefreshing(boolean needScroll, boolean forceRefresh){
         if (!needScroll) {
             refetchData(forceRefresh);
         } else {
@@ -224,17 +217,6 @@ public class PtrFrame extends ViewGroup {
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         if (!mHandler.canPull(mHeader, mContent, mObserver)) {
             return false;
-        }
-        final int action = ev.getAction();
-        switch (action) {
-            case MotionEvent.ACTION_MOVE:
-                break;
-            case MotionEvent.ACTION_DOWN:
-                break;
-            case MotionEvent.ACTION_UP:
-            case MotionEvent.ACTION_CANCEL:
-                break;
-
         }
         return super.onInterceptTouchEvent(ev);
     }
