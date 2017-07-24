@@ -29,7 +29,7 @@ public class PtrHandler {
         }
 
         return ((IPtrHeader) header).canPull()
-                && ptrObserver != null && ptrObserver.canPull()
+                && (ptrObserver == null || ptrObserver.canPull())
                 && canContentPull(content);
     }
 

@@ -30,6 +30,8 @@ public class PtrFrame extends ViewGroup {
     PtrObserver mObserver;
     PtrHandler mHandler;
 
+    private boolean mHasDragged;
+
     View mHeader;
     View mContent;
     private int mHeaderHeight;
@@ -228,20 +230,41 @@ public class PtrFrame extends ViewGroup {
         final int action = ev.getAction();
         switch (action) {
             case MotionEvent.ACTION_MOVE:
-                break;
+                Log.i(LOG_TAG, "int move");
+                return true;
             case MotionEvent.ACTION_DOWN:
+                if (mHandler.canPull(mHeader, mContent, mObserver)) {
+                    mHasDragged = false;
+                    mIndicator.setOriginPos(ev.getX(), ev.getY());
+                }
                 break;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
                 break;
 
         }
-        return super.onInterceptTouchEvent(ev);
+        return mHasDragged;
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        return super.onTouchEvent(event);
+    public boolean onTouchEvent(MotionEvent ev) {
+        final int action = ev.getAction();
+        switch (action) {
+            case MotionEvent.ACTION_MOVE:
+                Log.i(LOG_TAG, "move");
+                break;
+            case MotionEvent.ACTION_DOWN:
+                if (mHandler.canPull(mHeader, mContent, mObserver)) {
+                    mIndicator.setOriginPos(ev.getX(), ev.getY());
+                    return true;
+                }
+                break;
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+                break;
+
+        }
+        return super.onTouchEvent(ev);
     }
 
     @Override

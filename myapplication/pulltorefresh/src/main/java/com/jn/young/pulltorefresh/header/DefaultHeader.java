@@ -24,7 +24,7 @@ public class DefaultHeader extends View implements IPtrHeader {
 
     @Override
     public boolean canPull() {
-        return false;
+        return true;
     }
 
     @Override
