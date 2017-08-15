@@ -6,7 +6,7 @@ package com.jn.young.pulltorefresh.utils;
 
 public class PtrIndicator {
     private float mCurrentX, mCurrentY;
-    private float mMovementX, mMoveMentY;
+    private float mMovementX, mMovementY;
     private float mLastX, mLastY;
 
     public boolean isReachedOriginPos(){
@@ -21,7 +21,7 @@ public class PtrIndicator {
         mCurrentX = x;
         mCurrentY= y;
         mMovementX = mCurrentX - mLastX;
-        mMoveMentY = mCurrentY - mLastY;
+        mMovementY = mCurrentY - mLastY;
         mLastY = mCurrentY;
         mLastX = mCurrentX;
     }
@@ -30,8 +30,10 @@ public class PtrIndicator {
         setOriginPos(0f, 0f);
     }
 
-    private float getMovementY(){
-        return mMoveMentY;
+    public float getMovementY(){
+        return mMovementY;
     }
-
+    public float getMovementX(){
+        return mMovementX;
+    }
 }

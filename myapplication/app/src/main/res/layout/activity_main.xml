@@ -10,11 +10,13 @@
         android:layout_width="match_parent"
         android:background="@color/colorPrimary"
         android:layout_height="match_parent">
-        <TextView
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/id_recyclerview"
+            android:divider="#ffff0000"
+            android:background="@color/colorAccent"
+            android:dividerHeight="10dp"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="pullme"
-            android:background="@color/colorAccent"/>
+            android:layout_height="match_parent" />
 
     </com.jn.young.pulltorefresh.PtrFrame>
 

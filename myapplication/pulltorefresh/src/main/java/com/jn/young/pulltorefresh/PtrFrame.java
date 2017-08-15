@@ -16,8 +16,6 @@ import com.jn.young.pulltorefresh.utils.PtrHandler;
 import com.jn.young.pulltorefresh.utils.PtrIndicator;
 import com.jn.young.pulltorefresh.utils.PtrObserver;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
 /**
  * Created by zjy on 2017/7/15.
  */
@@ -30,7 +28,7 @@ public class PtrFrame extends ViewGroup {
     PtrObserver mObserver;
     PtrHandler mHandler;
 
-    private boolean mHasDragged;
+    private boolean mIsBeingDragged;
 
     View mHeader;
     View mContent;
@@ -230,11 +228,20 @@ public class PtrFrame extends ViewGroup {
         final int action = ev.getAction();
         switch (action) {
             case MotionEvent.ACTION_MOVE:
-                Log.i(LOG_TAG, "int move");
-                return true;
+                if (mHandler.canPull(mHeader, mContent, mObserver)){
+                    mIndicator.setCurrentPos(ev.getX(), ev.getY());
+                    //TODO:NOT good declare here
+                    float movementX = mIndicator.getMovementX();
+                    float movementY = mIndicator.getMovementY();
+                    Log.i(LOG_TAG, "int move");
+                    if (mIndicator.getMovementY() > mTouchSlop && Math.abs(movementY) > Math.abs(movementX)){
+                        mIsBeingDragged = true;
+                    }
+                }
+                mIsBeingDragged = false;
             case MotionEvent.ACTION_DOWN:
                 if (mHandler.canPull(mHeader, mContent, mObserver)) {
-                    mHasDragged = false;
+                    mIsBeingDragged = false;
                     mIndicator.setOriginPos(ev.getX(), ev.getY());
                 }
                 break;
@@ -243,7 +250,12 @@ public class PtrFrame extends ViewGroup {
                 break;
 
         }
-        return mHasDragged;
+        return mIsBeingDragged;
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        return super.dispatchTouchEvent(ev);
     }
 
     @Override
@@ -251,7 +263,9 @@ public class PtrFrame extends ViewGroup {
         final int action = ev.getAction();
         switch (action) {
             case MotionEvent.ACTION_MOVE:
-                Log.i(LOG_TAG, "move");
+                if (mIsBeingDragged) {
+                    Log.i(LOG_TAG, "move");
+                }
                 break;
             case MotionEvent.ACTION_DOWN:
                 if (mHandler.canPull(mHeader, mContent, mObserver)) {
