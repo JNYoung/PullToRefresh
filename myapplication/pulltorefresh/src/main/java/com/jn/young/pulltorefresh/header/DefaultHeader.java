@@ -33,6 +33,11 @@ public class DefaultHeader extends View implements IPtrHeader {
     }
 
     @Override
+    public int getIdleExposeTime() {
+        return 1000;
+    }
+
+    @Override
     public void onReset() {
 
     }
@@ -48,8 +53,11 @@ public class DefaultHeader extends View implements IPtrHeader {
     }
 
     @Override
-    public void onPull(float len) {
-
+    public boolean onPull(float len) {
+        if (len > 200) {
+            return true;
+        }
+        return false;
     }
 
     @Override

@@ -13,6 +13,10 @@ import com.jn.young.pulltorefresh.lifecircle.PtrState;
 public class PtrHandler {
 
     private PtrState mState = PtrState.RESET;//刷新过程中的
+
+    //因为是在pull中使用的变量，所以统一声明，避免重复声明
+    boolean mHeaderReachedRefreshingPos = false;//头部是否到达了刷新位置
+    boolean mContentReachedRefreshingPos = false;//内容是否到达了刷新位置
     /**
      * 判断是否可以下拉
      * @param header 如果头部为空，认为不能下拉
@@ -67,10 +71,20 @@ public class PtrHandler {
 
     }
     public void onPull(float lenth, View header,  PtrObserver ptrObserver) {
-        ((IPtrHeader)header).onPull(lenth);
+        lenth = Math.abs(lenth);
+        mHeaderReachedRefreshingPos = ((IPtrHeader)header).onPull(lenth);
         if (ptrObserver != null) {
-            ptrObserver.onPull(lenth);
+            mContentReachedRefreshingPos = ptrObserver.onPull(lenth);
+        } else {
+            mContentReachedRefreshingPos = true;
         }
+
+        if (mHeaderReachedRefreshingPos && mContentReachedRefreshingPos) {
+            setState(PtrState.PULLTOREFRESH);
+        }else {
+            setState(PtrState.RESET);
+        }
+
     }
 
     public void onPulltoRefresh ( View header,  PtrObserver ptrObserver) {

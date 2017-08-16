@@ -40,11 +40,13 @@ public interface IPtrActionCirlce {
     /**
      * 下拉过程中的操作
      * @param len 下拉的距离
+     * @return 是否到达了PUllTOREFRESH
      */
-    void onPull(float len);
+    boolean onPull(float len);
 
     /**
      * 刷新完成的操作，接下来是回滚
      */
     void onRefreshComplete();
+
 }

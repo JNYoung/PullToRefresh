@@ -15,6 +15,8 @@ import com.jn.young.pulltorefresh.utils.PtrIndicator;
 import com.jn.young.pulltorefresh.utils.PtrLog;
 import com.jn.young.pulltorefresh.utils.PtrObserver;
 
+import java.util.logging.Handler;
+
 /**
  * Created by zjy on 2017/7/15.
  */
@@ -27,6 +29,8 @@ public class PtrFrame extends ViewGroup {
     PtrHandler mHandler;
 
     private boolean mIsBeingDragged;
+
+    private Runnable mIdleExposeRunnable;
 
     View mHeader;
     View mContent;
@@ -90,6 +94,11 @@ public class PtrFrame extends ViewGroup {
         super.onFinishInflate();
     }
 
+    @Override
+    protected void onDetachedFromWindow() {
+        removeCallbacks(mIdleExposeRunnable);
+        super.onDetachedFromWindow();
+    }
 
     private View getDefaultHeader() {
         return new DefaultHeader(getContext());
@@ -273,7 +282,19 @@ public class PtrFrame extends ViewGroup {
                     if (mHandler.getCurrentState() == PtrState.PULLTOREFRESH) {
                         mHandler.onRefresh(mHeader, mObserver);
                     } else {
-
+                        if (((IPtrHeader)mHeader).getIdleExposeTime() > 0) {
+                            if (mIdleExposeRunnable == null) {
+                                mIdleExposeRunnable = new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        doScrollBack();
+                                    }
+                                };
+                            }
+                            postDelayed(mIdleExposeRunnable, ((IPtrHeader)mHeader).getIdleExposeTime());
+                        } else {
+                            doScrollBack();
+                        }
                     }
                 }
                 break;
@@ -285,6 +306,10 @@ public class PtrFrame extends ViewGroup {
     private void onPull(int len) {
         mHandler.onPull(len, mHeader, mObserver);
         scrollTo(0, len);
+    }
+
+    private void doScrollBack(){
+        scrollTo(0,0);
     }
 
     @Override

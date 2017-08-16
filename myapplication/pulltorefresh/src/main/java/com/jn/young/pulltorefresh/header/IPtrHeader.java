@@ -11,4 +11,10 @@ public interface IPtrHeader extends IPtrActionCirlce{
 
     int getMaxPullLenth();
 
+    /**
+     * 下拉之后的空闲曝光时间，即使不刷新也显示
+     * @return
+     */
+    int getIdleExposeTime();
+
 }
