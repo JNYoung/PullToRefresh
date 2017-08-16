@@ -33,6 +33,7 @@ public class PtrHandler {
                 && canContentPull(content);
     }
 
+
     /**
      * 内容是否可以下拉
      * @param content

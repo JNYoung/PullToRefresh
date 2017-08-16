@@ -28,6 +28,11 @@ public class DefaultHeader extends View implements IPtrHeader {
     }
 
     @Override
+    public int getMaxPullLenth() {
+        return 500;
+    }
+
+    @Override
     public void onReset() {
 
     }

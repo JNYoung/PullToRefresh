@@ -10,12 +10,9 @@ import android.view.ViewGroup;
 import com.jn.young.pulltorefresh.header.DefaultHeader;
 import com.jn.young.pulltorefresh.header.IPtrHeader;
 import com.jn.young.pulltorefresh.lifecircle.PtrState;
-import com.jn.young.pulltorefresh.utils.MultiDIstanceListener;
 import com.jn.young.pulltorefresh.utils.PtrHandler;
 import com.jn.young.pulltorefresh.utils.PtrIndicator;
 import com.jn.young.pulltorefresh.utils.PtrObserver;
-
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by zjy on 2017/7/15.
@@ -25,7 +22,6 @@ public class PtrFrameNestedScroll extends ViewGroup {
 
     private final String LOG_TAG = "PTR_FRAME";
     PtrIndicator mIndicator;
-    MultiDIstanceListener mMultiDIstanceListener;
     PtrObserver mObserver;
     PtrHandler mHandler;
 
@@ -95,14 +91,6 @@ public class PtrFrameNestedScroll extends ViewGroup {
 
     public void setObserver(PtrObserver ptrObserver){
         mObserver = ptrObserver;
-    }
-
-    /**
-     * 为了应对多重下拉做的东西，拉到不同长度有不同的反应
-     * @param listener
-     */
-    public void setMultiDIstanceListener(MultiDIstanceListener listener) {
-        mMultiDIstanceListener = listener;
     }
 
     public void setHeader(View header) {

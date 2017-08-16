@@ -7,5 +7,8 @@ import com.jn.young.pulltorefresh.lifecircle.IPtrActionCirlce;
  */
 
 public interface IPtrHeader extends IPtrActionCirlce{
-    public boolean canPull();
+    boolean canPull();
+
+    int getMaxPullLenth();
+
 }

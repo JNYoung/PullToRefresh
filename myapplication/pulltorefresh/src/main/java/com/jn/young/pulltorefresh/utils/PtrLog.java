@@ -1,0 +1,291 @@
+package com.jn.young.pulltorefresh.utils;
+
+import android.util.Log;
+
+/**
+ * Created by zhengjinyang on 2017/8/16.
+ */
+
+public class PtrLog {
+    private static boolean IS_DEBUG = true;
+    public static final int LEVEL_VERBOSE = 0;
+    public static final int LEVEL_DEBUG = 1;
+    public static final int LEVEL_INFO = 2;
+    public static final int LEVEL_WARNING = 3;
+    public static final int LEVEL_ERROR = 4;
+    public static final int LEVEL_FATAL = 5;
+
+    private static int sLevel = LEVEL_VERBOSE;
+
+    /**
+     * set log level, the level lower than this level will not be logged
+     *
+     * @param level
+     */
+    public static void setLogLevel(int level) {
+        sLevel = level;
+    }
+
+    /**
+     * Send a VERBOSE log message.
+     *
+     * @param tag
+     * @param msg
+     */
+    public static void v(String tag, String msg) {
+        if (sLevel > LEVEL_VERBOSE || !IS_DEBUG) {
+            return;
+        }
+        Log.v(tag, msg);
+    }
+
+    /**
+     * Send a VERBOSE log message.
+     *
+     * @param tag
+     * @param msg
+     * @param throwable
+     */
+    public static void v(String tag, String msg, Throwable throwable) {
+        if (sLevel > LEVEL_VERBOSE || !IS_DEBUG) {
+            return;
+        }
+        Log.v(tag, msg, throwable);
+    }
+
+    /**
+     * Send a VERBOSE log message.
+     *
+     * @param tag
+     * @param msg
+     * @param args
+     */
+    public static void v(String tag, String msg, Object... args) {
+        if (sLevel > LEVEL_VERBOSE || !IS_DEBUG) {
+            return;
+        }
+        if (args.length > 0) {
+            msg = String.format(msg, args);
+        }
+        Log.v(tag, msg);
+    }
+
+    /**
+     * Send a DEBUG log message
+     *
+     * @param tag
+     * @param msg
+     */
+    public static void d(String tag, String msg) {
+        if (sLevel > LEVEL_DEBUG || !IS_DEBUG) {
+            return;
+        }
+        Log.d(tag, msg);
+    }
+
+    /**
+     * Send a DEBUG log message
+     *
+     * @param tag
+     * @param msg
+     * @param args
+     */
+    public static void d(String tag, String msg, Object... args) {
+        if (sLevel > LEVEL_DEBUG || !IS_DEBUG) {
+            return;
+        }
+        if (args.length > 0) {
+            msg = String.format(msg, args);
+        }
+        Log.d(tag, msg);
+    }
+
+    /**
+     * Send a DEBUG log message
+     *
+     * @param tag
+     * @param msg
+     * @param throwable
+     */
+    public static void d(String tag, String msg, Throwable throwable) {
+        if (sLevel > LEVEL_DEBUG || !IS_DEBUG) {
+            return;
+        }
+        Log.d(tag, msg, throwable);
+    }
+
+    /**
+     * Send an INFO log message
+     *
+     * @param tag
+     * @param msg
+     */
+    public static void i(String tag, String msg) {
+        if (sLevel > LEVEL_INFO || !IS_DEBUG) {
+            return;
+        }
+        Log.i(tag, msg);
+    }
+
+    /**
+     * Send an INFO log message
+     *
+     * @param tag
+     * @param msg
+     * @param args
+     */
+    public static void i(String tag, String msg, Object... args) {
+        if (sLevel > LEVEL_INFO || !IS_DEBUG) {
+            return;
+        }
+        if (args.length > 0) {
+            msg = String.format(msg, args);
+        }
+        Log.i(tag, msg);
+    }
+
+    /**
+     * Send an INFO log message
+     *
+     * @param tag
+     * @param msg
+     */
+    public static void i(String tag, String msg, Throwable throwable) {
+        if (sLevel > LEVEL_INFO || !IS_DEBUG) {
+            return;
+        }
+        Log.i(tag, msg, throwable);
+    }
+
+    /**
+     * Send a WARNING log message
+     *
+     * @param tag
+     * @param msg
+     */
+    public static void w(String tag, String msg) {
+        if (sLevel > LEVEL_WARNING || !IS_DEBUG) {
+            return;
+        }
+        Log.w(tag, msg);
+    }
+
+    /**
+     * Send a WARNING log message
+     *
+     * @param tag
+     * @param msg
+     * @param args
+     */
+    public static void w(String tag, String msg, Object... args) {
+        if (sLevel > LEVEL_WARNING || !IS_DEBUG) {
+            return;
+        }
+        if (args.length > 0) {
+            msg = String.format(msg, args);
+        }
+        Log.w(tag, msg);
+    }
+
+    /**
+     * Send a WARNING log message
+     *
+     * @param tag
+     * @param msg
+     * @param throwable
+     */
+    public static void w(String tag, String msg, Throwable throwable) {
+        if (sLevel > LEVEL_WARNING || !IS_DEBUG) {
+            return;
+        }
+        Log.w(tag, msg, throwable);
+    }
+
+    /**
+     * Send an ERROR log message
+     *
+     * @param tag
+     * @param msg
+     */
+    public static void e(String tag, String msg) {
+        if (sLevel > LEVEL_ERROR || !IS_DEBUG) {
+            return;
+        }
+        Log.e(tag, msg);
+    }
+
+    /**
+     * Send an ERROR log message
+     *
+     * @param tag
+     * @param msg
+     * @param args
+     */
+    public static void e(String tag, String msg, Object... args) {
+        if (sLevel > LEVEL_ERROR || !IS_DEBUG) {
+            return;
+        }
+        if (args.length > 0) {
+            msg = String.format(msg, args);
+        }
+        Log.e(tag, msg);
+    }
+
+    /**
+     * Send an ERROR log message
+     *
+     * @param tag
+     * @param msg
+     * @param throwable
+     */
+    public static void e(String tag, String msg, Throwable throwable) {
+        if (sLevel > LEVEL_ERROR || !IS_DEBUG) {
+            return;
+        }
+        Log.e(tag, msg, throwable);
+    }
+
+    /**
+     * Send a FATAL ERROR log message
+     *
+     * @param tag
+     * @param msg
+     */
+    public static void f(String tag, String msg) {
+        if (sLevel > LEVEL_FATAL || !IS_DEBUG) {
+            return;
+        }
+        Log.wtf(tag, msg);
+    }
+
+    /**
+     * Send a FATAL ERROR log message
+     *
+     * @param tag
+     * @param msg
+     * @param args
+     */
+    public static void f(String tag, String msg, Object... args) {
+        if (sLevel > LEVEL_FATAL || !IS_DEBUG) {
+            return;
+        }
+        if (args.length > 0) {
+            msg = String.format(msg, args);
+        }
+        Log.wtf(tag, msg);
+    }
+
+    /**
+     * Send a FATAL ERROR log message
+     *
+     * @param tag
+     * @param msg
+     * @param throwable
+     */
+    public static void f(String tag, String msg, Throwable throwable) {
+        if (sLevel > LEVEL_FATAL || !IS_DEBUG) {
+            return;
+        }
+        Log.wtf(tag, msg, throwable);
+    }
+}

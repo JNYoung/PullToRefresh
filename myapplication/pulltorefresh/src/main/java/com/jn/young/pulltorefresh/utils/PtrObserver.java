@@ -4,7 +4,7 @@ import com.jn.young.pulltorefresh.lifecircle.IPtrActionCirlce;
 
 /**
  * Created by zjy on 2017/7/16.
- *
+ * Should be used only in PtrHandler instead of EVERYWHERE
  */
 
 public abstract class PtrObserver implements IPtrActionCirlce {

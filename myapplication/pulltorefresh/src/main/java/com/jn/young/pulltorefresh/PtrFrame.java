@@ -2,7 +2,6 @@ package com.jn.young.pulltorefresh;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -11,9 +10,9 @@ import android.view.ViewGroup;
 import com.jn.young.pulltorefresh.header.DefaultHeader;
 import com.jn.young.pulltorefresh.header.IPtrHeader;
 import com.jn.young.pulltorefresh.lifecircle.PtrState;
-import com.jn.young.pulltorefresh.utils.MultiDIstanceListener;
 import com.jn.young.pulltorefresh.utils.PtrHandler;
 import com.jn.young.pulltorefresh.utils.PtrIndicator;
+import com.jn.young.pulltorefresh.utils.PtrLog;
 import com.jn.young.pulltorefresh.utils.PtrObserver;
 
 /**
@@ -24,7 +23,6 @@ public class PtrFrame extends ViewGroup {
 
     private final String LOG_TAG = "PTR_FRAME";
     PtrIndicator mIndicator;
-    MultiDIstanceListener mMultiDIstanceListener;
     PtrObserver mObserver;
     PtrHandler mHandler;
 
@@ -101,15 +99,6 @@ public class PtrFrame extends ViewGroup {
         mObserver = ptrObserver;
     }
 
-    /**
-     * 为了应对多重下拉做的东西，拉到不同长度有不同的反应
-     *
-     * @param listener
-     */
-    public void setMultiDIstanceListener(MultiDIstanceListener listener) {
-        mMultiDIstanceListener = listener;
-    }
-
     public View getHeader() {
         return mHeader;
     }
@@ -131,7 +120,6 @@ public class PtrFrame extends ViewGroup {
      */
     public void refetchData(boolean forceRefresh) {
         if (forceRefresh) {
-            Log.i(LOG_TAG, "forceRefresh may lead to some uncertain status");
             if (mObserver != null && mHandler != null) {
                 if (mObserver.stopFetchOps()) {
                     mHandler.onRefetchData(mObserver);
@@ -228,17 +216,16 @@ public class PtrFrame extends ViewGroup {
         final int action = ev.getAction();
         switch (action) {
             case MotionEvent.ACTION_MOVE:
-                if (mHandler.canPull(mHeader, mContent, mObserver)){
+                if (mHandler.canPull(mHeader, mContent, mObserver)) {
                     mIndicator.setCurrentPos(ev.getX(), ev.getY());
                     //TODO:NOT good declare here
                     float movementX = mIndicator.getMovementX();
                     float movementY = mIndicator.getMovementY();
-                    Log.i(LOG_TAG, "int move");
-                    if (mIndicator.getMovementY() > mTouchSlop && Math.abs(movementY) > Math.abs(movementX)){
+                    if (mIndicator.getOffsetY() > mTouchSlop && Math.abs(movementY) > Math.abs(movementX)) {
                         mIsBeingDragged = true;
                     }
                 }
-                mIsBeingDragged = false;
+                break;
             case MotionEvent.ACTION_DOWN:
                 if (mHandler.canPull(mHeader, mContent, mObserver)) {
                     mIsBeingDragged = false;
@@ -253,6 +240,7 @@ public class PtrFrame extends ViewGroup {
         return mIsBeingDragged;
     }
 
+
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
         return super.dispatchTouchEvent(ev);
@@ -264,7 +252,13 @@ public class PtrFrame extends ViewGroup {
         switch (action) {
             case MotionEvent.ACTION_MOVE:
                 if (mIsBeingDragged) {
-                    Log.i(LOG_TAG, "move");
+                    mIndicator.setCurrentPos(ev.getX(), ev.getY());
+                    float offSetY = -mIndicator.getOffsetY();
+                    PtrLog.i(LOG_TAG, "offset is %s", offSetY);
+                    if (offSetY < 0 && (mHeader == null || Math.abs(offSetY) < ((IPtrHeader) mHeader).getMaxPullLenth())) {
+                        onPull((int) offSetY);
+                    }
+
                 }
                 break;
             case MotionEvent.ACTION_DOWN:
@@ -275,10 +269,22 @@ public class PtrFrame extends ViewGroup {
                 break;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
+                if (mIsBeingDragged) {
+                    if (mHandler.getCurrentState() == PtrState.PULLTOREFRESH) {
+                        mHandler.onRefresh(mHeader, mObserver);
+                    } else {
+
+                    }
+                }
                 break;
 
         }
         return super.onTouchEvent(ev);
+    }
+
+    private void onPull(int len) {
+        mHandler.onPull(len, mHeader, mObserver);
+        scrollTo(0, len);
     }
 
     @Override
@@ -313,6 +319,24 @@ public class PtrFrame extends ViewGroup {
 
         public LayoutParams(ViewGroup.LayoutParams source) {
             super(source);
+        }
+    }
+
+    class ScrollHelper implements Runnable {
+        public static final int SMOOTH_SCROLL_DURATION_MS = 200;
+
+        public void scrollTo(int to) {
+            scrollTo(to, SMOOTH_SCROLL_DURATION_MS);
+        }
+
+        public void scrollTo(int to, int duration){
+
+        }
+
+
+        @Override
+        public void run() {
+
         }
     }
 }
