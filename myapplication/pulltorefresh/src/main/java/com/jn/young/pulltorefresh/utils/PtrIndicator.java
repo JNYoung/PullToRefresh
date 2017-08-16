@@ -27,16 +27,16 @@ public class PtrIndicator {
     public void setCurrentPos(float x, float y) {
         mCurrentX = x;
         mCurrentY= y;
-        PtrLog.i(LOG_TAG, "mCurrentX is %s, mCurrentY is %s", x, y);
+//        PtrLog.i(LOG_TAG, "mCurrentX is %s, mCurrentY is %s", x, y);
         mMovementX = mCurrentX - mLastX;
         mMovementY = mCurrentY - mLastY;
-        PtrLog.i(LOG_TAG, "mMovementX is %s, mMovementY is %s", x, y);
+//        PtrLog.i(LOG_TAG, "mMovementX is %s, mMovementY is %s", x, y);
         mOffsetX = mCurrentX - mOriginX;
         mOffsetY = mCurrentY - mOriginY;
-        PtrLog.i(LOG_TAG, "mMovementX is %s, mMovementY is %s", x, y);
+//        PtrLog.i(LOG_TAG, "mMovementX is %s, mMovementY is %s", x, y);
         mLastY = mCurrentY;
         mLastX = mCurrentX;
-        PtrLog.i(LOG_TAG, "mLastX is %s, mLast is %s", x, y);
+//        PtrLog.i(LOG_TAG, "mLastX is %s, mLast is %s", x, y);
 
     }
 

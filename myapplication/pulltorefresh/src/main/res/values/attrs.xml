@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="PtrFrame">
+        <attr name="pin_content" format="boolean"/>
+        <attr name="pull_resilience" format="float"/>
+    </declare-styleable>
+</resources>

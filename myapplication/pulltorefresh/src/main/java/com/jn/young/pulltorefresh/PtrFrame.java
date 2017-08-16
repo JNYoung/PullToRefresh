@@ -32,6 +32,8 @@ public class PtrFrame extends ViewGroup {
 
     private Runnable mIdleExposeRunnable;
 
+    public float mResilience = 1f;
+    public boolean mPinnedContent = false;
     View mHeader;
     View mContent;
     private int mHeaderHeight;
@@ -101,7 +103,11 @@ public class PtrFrame extends ViewGroup {
     }
 
     private View getDefaultHeader() {
-        return new DefaultHeader(getContext());
+        DefaultHeader header = new DefaultHeader(getContext());
+        header.setMinimumHeight(500);
+        header.setMinimumWidth(1920);
+        return header;
+
     }
 
     public void setObserver(PtrObserver ptrObserver) {
@@ -144,6 +150,9 @@ public class PtrFrame extends ViewGroup {
         }
     }
 
+    public void onFetchComplete(){
+    }
+
     /**
      * 从外部调用刷新状态
      *
@@ -169,6 +178,7 @@ public class PtrFrame extends ViewGroup {
             MarginLayoutParams lp = (MarginLayoutParams) mHeader.getLayoutParams();
             mHeaderHeight = mHeader.getMeasuredHeight() + lp.topMargin + lp.bottomMargin;
         }
+
 
         if (mContent != null) {
             measureContent(mContent, widthMeasureSpec, heightMeasureSpec);
@@ -202,10 +212,11 @@ public class PtrFrame extends ViewGroup {
         if (mHeader != null) {
             MarginLayoutParams lp = (MarginLayoutParams) mHeader.getLayoutParams();
             final int left = paddingLeft + lp.leftMargin;
-            final int top = paddingTop + lp.topMargin - mHeaderHeight;
+            final int top = paddingTop + lp.topMargin ;
             final int right = left + mHeader.getMeasuredWidth();
             final int bottom = top + mHeader.getMeasuredHeight();
             mHeader.layout(left, top, right, bottom);
+
         }
         if (mContent != null) {
             MarginLayoutParams lp = (MarginLayoutParams) mContent.getLayoutParams();
@@ -263,7 +274,6 @@ public class PtrFrame extends ViewGroup {
                 if (mIsBeingDragged) {
                     mIndicator.setCurrentPos(ev.getX(), ev.getY());
                     float offSetY = -mIndicator.getOffsetY();
-                    PtrLog.i(LOG_TAG, "offset is %s", offSetY);
                     if (offSetY < 0 && (mHeader == null || Math.abs(offSetY) < ((IPtrHeader) mHeader).getMaxPullLenth())) {
                         onPull((int) offSetY);
                     }
@@ -305,10 +315,17 @@ public class PtrFrame extends ViewGroup {
 
     private void onPull(int len) {
         mHandler.onPull(len, mHeader, mObserver);
-        scrollTo(0, len);
+        mHeader.offsetTopAndBottom(len);
+        scrollTo(0, (int) (len * mResilience));
     }
 
-    private void doScrollBack(){
+    /**
+     * 类似于onreset或者resetstate
+     * 包可用，不允许改成public ！！！
+     * 包可用，不允许改成public ！！！
+     * 包可用，不允许改成public ！！！
+     */
+    void doScrollBack(){
         scrollTo(0,0);
     }
 

@@ -1,5 +1,6 @@
 package com.jn.young.myapplication;
 
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -8,6 +9,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import com.jn.young.pulltorefresh.PtrFrame;
+import com.jn.young.pulltorefresh.utils.PtrObserver;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +24,48 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        final PtrFrame frame = (PtrFrame) findViewById(R.id.ptrframe);
+        frame.setObserver(new PtrObserver() {
+            @Override
+            public boolean canPull() {
+                return true;
+            }
+
+            @Override
+            public boolean stopFetchOps() {
+                return false;
+            }
+
+            @Override
+            public void onReset() {
+
+            }
+
+            @Override
+            public void onRefreshing() {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        frame.onFetchComplete();
+                    }
+                }, 3000);
+            }
+
+            @Override
+            public void onPullToRefresh() {
+
+            }
+
+            @Override
+            public boolean onPull(float len) {
+                return false;
+            }
+
+            @Override
+            public int onRefreshComplete() {
+                return 0;
+            }
+        });
         initData();
         mRecyclerView = (RecyclerView)findViewById(R.id.id_recyclerview);
         mRecyclerView.setAdapter(new HomeAdapter());

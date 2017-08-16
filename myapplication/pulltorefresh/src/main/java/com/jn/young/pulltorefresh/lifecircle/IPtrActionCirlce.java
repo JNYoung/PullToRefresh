@@ -46,7 +46,8 @@ public interface IPtrActionCirlce {
 
     /**
      * 刷新完成的操作，接下来是回滚
+     * @return 还需要延迟的时间
      */
-    void onRefreshComplete();
+    int onRefreshComplete();
 
 }

@@ -4,6 +4,9 @@ import android.content.Context;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.ViewGroup;
+
+import com.jn.young.pulltorefresh.R;
 
 /**
  * Created by zjy on 2017/7/16.
@@ -23,6 +26,15 @@ public class DefaultHeader extends View implements IPtrHeader {
     }
 
     @Override
+    protected void onFinishInflate() {
+        super.onFinishInflate();
+        ViewGroup.LayoutParams layoutParams = getLayoutParams();
+        layoutParams.height = 500;
+        layoutParams.width = 1080;
+        setBackgroundColor(getContext().getResources().getColor(android.R.color.holo_green_light));
+    }
+
+    @Override
     public boolean canPull() {
         return true;
     }
@@ -34,7 +46,7 @@ public class DefaultHeader extends View implements IPtrHeader {
 
     @Override
     public int getIdleExposeTime() {
-        return 1000;
+        return 0;
     }
 
     @Override
@@ -53,6 +65,12 @@ public class DefaultHeader extends View implements IPtrHeader {
     }
 
     @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(1080, 500);
+
+    }
+
+    @Override
     public boolean onPull(float len) {
         if (len > 200) {
             return true;
@@ -61,7 +79,7 @@ public class DefaultHeader extends View implements IPtrHeader {
     }
 
     @Override
-    public void onRefreshComplete() {
-
+    public int onRefreshComplete() {
+        return 0;
     }
 }
