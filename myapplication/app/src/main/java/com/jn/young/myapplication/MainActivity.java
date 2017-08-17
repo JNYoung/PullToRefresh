@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
                     public void run() {
                         frame.onFetchComplete();
                     }
-                }, 3000);
+                }, 1000);
             }
 
             @Override
@@ -56,15 +56,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
 
-            @Override
-            public boolean onPull(float len) {
-                return false;
-            }
-
-            @Override
-            public int onRefreshComplete() {
-                return 0;
-            }
         });
         initData();
         mRecyclerView = (RecyclerView)findViewById(R.id.id_recyclerview);

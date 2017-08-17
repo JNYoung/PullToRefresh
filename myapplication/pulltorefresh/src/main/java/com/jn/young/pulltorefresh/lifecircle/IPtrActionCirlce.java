@@ -1,17 +1,19 @@
 package com.jn.young.pulltorefresh.lifecircle;
 
+import com.jn.young.pulltorefresh.PtrFrame;
+
 /**
  * Created by zjy on 2017/7/16.
  * deal with manual scroll
  * reset
  * ↓
- * onpull
+ * onpull (交给头部来做）
  * ↓
  * onPullToRefresh
  * ↓
  * onRefreshing
  * ↓
- * onRefreshComplete
+ * onRefreshComplete (交给头部来做）
  * ↓
  * （Scroll back）
  * ↓
@@ -37,17 +39,6 @@ public interface IPtrActionCirlce {
      */
     void onPullToRefresh();
 
-    /**
-     * 下拉过程中的操作
-     * @param len 下拉的距离
-     * @return 是否到达了PUllTOREFRESH
-     */
-    boolean onPull(float len);
 
-    /**
-     * 刷新完成的操作，接下来是回滚
-     * @return 还需要延迟的时间
-     */
-    int onRefreshComplete();
 
 }

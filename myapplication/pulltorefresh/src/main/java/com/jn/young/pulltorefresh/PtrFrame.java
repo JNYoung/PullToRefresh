@@ -88,7 +88,6 @@ public class PtrFrame extends ViewGroup {
         } else {
 
         }
-
         //进行类型检查
         if (!(mHeader instanceof IPtrHeader)) {
             throw new IllegalArgumentException("header should implements IPtrHeader");
@@ -104,7 +103,7 @@ public class PtrFrame extends ViewGroup {
 
     private View getDefaultHeader() {
         DefaultHeader header = new DefaultHeader(getContext());
-        header.setMinimumHeight(500);
+        header.setMinimumHeight(900);
         header.setMinimumWidth(1920);
         return header;
 
@@ -151,6 +150,7 @@ public class PtrFrame extends ViewGroup {
     }
 
     public void onFetchComplete(){
+        mHandler.onRefreshComplete(mHeader, this);
     }
 
     /**
@@ -212,7 +212,7 @@ public class PtrFrame extends ViewGroup {
         if (mHeader != null) {
             MarginLayoutParams lp = (MarginLayoutParams) mHeader.getLayoutParams();
             final int left = paddingLeft + lp.leftMargin;
-            final int top = paddingTop + lp.topMargin ;
+            final int top = paddingTop + lp.topMargin - mHeaderHeight;
             final int right = left + mHeader.getMeasuredWidth();
             final int bottom = top + mHeader.getMeasuredHeight();
             mHeader.layout(left, top, right, bottom);
@@ -274,8 +274,9 @@ public class PtrFrame extends ViewGroup {
                 if (mIsBeingDragged) {
                     mIndicator.setCurrentPos(ev.getX(), ev.getY());
                     float offSetY = -mIndicator.getOffsetY();
+                    float moveMentY = -mIndicator.getMovementY();
                     if (offSetY < 0 && (mHeader == null || Math.abs(offSetY) < ((IPtrHeader) mHeader).getMaxPullLenth())) {
-                        onPull((int) offSetY);
+                        onPull((int) offSetY, (int) moveMentY);
                     }
 
                 }
@@ -313,20 +314,24 @@ public class PtrFrame extends ViewGroup {
         return super.onTouchEvent(ev);
     }
 
-    private void onPull(int len) {
-        mHandler.onPull(len, mHeader, mObserver);
-        mHeader.offsetTopAndBottom(len);
-        scrollTo(0, (int) (len * mResilience));
+    /**
+     * 要处理总长度：比如多重下拉
+     * 也要处理距离的变化
+     * 可能不同长度的Resilience不同，之后实现
+     * @param len
+     * @param deltaLen
+     */
+    private void onPull(int len, int deltaLen) {
+
+        scrollBy(0, (int) (deltaLen * mHandler.onPull(len, mHeader, mObserver, mResilience)));//TODO:之后改成用detaLen * mResilience实现
     }
 
     /**
      * 类似于onreset或者resetstate
-     * 包可用，不允许改成public ！！！
-     * 包可用，不允许改成public ！！！
-     * 包可用，不允许改成public ！！！
      */
-    void doScrollBack(){
+    public void doScrollBack(){
         scrollTo(0,0);
+        mHeader.scrollTo(0,0);
     }
 
     @Override

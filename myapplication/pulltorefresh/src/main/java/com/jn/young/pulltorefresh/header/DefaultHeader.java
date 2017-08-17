@@ -6,7 +6,9 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.jn.young.pulltorefresh.PtrFrame;
 import com.jn.young.pulltorefresh.R;
+import com.jn.young.pulltorefresh.utils.PtrHandler;
 
 /**
  * Created by zjy on 2017/7/16.
@@ -15,23 +17,29 @@ import com.jn.young.pulltorefresh.R;
 public class DefaultHeader extends View implements IPtrHeader {
     public DefaultHeader(Context context) {
         super(context);
+        init();
     }
 
     public DefaultHeader(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
+        init();
+
     }
 
     public DefaultHeader(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        init();
+
     }
 
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        ViewGroup.LayoutParams layoutParams = getLayoutParams();
-        layoutParams.height = 500;
-        layoutParams.width = 1080;
-        setBackgroundColor(getContext().getResources().getColor(android.R.color.holo_green_light));
+
+    }
+
+    private void init(){
+
     }
 
     @Override
@@ -41,7 +49,7 @@ public class DefaultHeader extends View implements IPtrHeader {
 
     @Override
     public int getMaxPullLenth() {
-        return 500;
+        return 900;
     }
 
     @Override
@@ -66,20 +74,29 @@ public class DefaultHeader extends View implements IPtrHeader {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(1080, 500);
+        super.onMeasure(1080, 900);
+        ViewGroup.LayoutParams layoutParams = getLayoutParams();
+        setBackgroundColor(getContext().getResources().getColor(android.R.color.holo_green_light));
 
     }
 
     @Override
-    public boolean onPull(float len) {
-        if (len > 200) {
-            return true;
+    public PtrHandler.PullResult onPull(float len, float resilience) {
+        PtrHandler.PullResult result = new PtrHandler.PullResult();
+        if (len > 200 && len < 500) {
+            result.atPullToRequestRealm = true;
+            result.newResilience = resilience;
         }
-        return false;
+        if (len > 500) {
+            result.atPullToRequestRealm = true;
+            result.newResilience = 0.5f;
+        }
+        return result;
     }
 
     @Override
-    public int onRefreshComplete() {
+    public int onRefreshComplete(PtrFrame frame) {
+        frame.doScrollBack();
         return 0;
     }
 }

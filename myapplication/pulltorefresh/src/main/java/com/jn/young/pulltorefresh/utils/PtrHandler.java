@@ -3,6 +3,7 @@ package com.jn.young.pulltorefresh.utils;
 import android.view.View;
 import android.widget.AbsListView;
 
+import com.jn.young.pulltorefresh.PtrFrame;
 import com.jn.young.pulltorefresh.header.IPtrHeader;
 import com.jn.young.pulltorefresh.lifecircle.PtrState;
 
@@ -70,21 +71,21 @@ public class PtrHandler {
         setState(PtrState.RESET);
 
     }
-    public void onPull(float lenth, View header,  PtrObserver ptrObserver) {
-        lenth = Math.abs(lenth);
-        mHeaderReachedRefreshingPos = ((IPtrHeader)header).onPull(lenth);
-        if (ptrObserver != null) {
-            mContentReachedRefreshingPos = ptrObserver.onPull(lenth);
-        } else {
-            mContentReachedRefreshingPos = true;
-        }
 
+    public static class PullResult{
+        public boolean atPullToRequestRealm;
+        public float newResilience;
+    }
+    public float onPull(float lenth, View header,  PtrObserver ptrObserver, float resilience) {
+        lenth = Math.abs(lenth);
+        PullResult result = ((IPtrHeader)header).onPull(lenth, resilience);
+        mHeaderReachedRefreshingPos = result.atPullToRequestRealm;
         if (mHeaderReachedRefreshingPos && mContentReachedRefreshingPos) {
             setState(PtrState.PULLTOREFRESH);
         }else {
             setState(PtrState.RESET);
         }
-
+        return result.newResilience;
     }
 
     public void onPulltoRefresh ( View header,  PtrObserver ptrObserver) {
@@ -110,11 +111,8 @@ public class PtrHandler {
         }
     }
 
-    public void onRefreshComplete(View header, PtrObserver ptrObserver) {
-        ((IPtrHeader)header).onRefreshComplete();
-        if (ptrObserver != null) {
-            ptrObserver.onRefreshComplete();
-        }
+    public void onRefreshComplete(View header, PtrFrame frame) {
+        ((IPtrHeader)header).onRefreshComplete(frame);
     }
 
     public PtrState getCurrentState(){
