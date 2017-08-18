@@ -80,7 +80,7 @@ public class PtrHandler {
         lenth = Math.abs(lenth);
         PullResult result = ((IPtrHeader)header).onPull(lenth, resilience);
         mHeaderReachedRefreshingPos = result.atPullToRequestRealm;
-        if (mHeaderReachedRefreshingPos && mContentReachedRefreshingPos) {
+        if (mHeaderReachedRefreshingPos) {
             setState(PtrState.PULLTOREFRESH);
         }else {
             setState(PtrState.RESET);

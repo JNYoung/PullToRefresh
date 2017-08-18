@@ -2,10 +2,14 @@ package com.jn.young.pulltorefresh;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.Interpolator;
+import android.widget.Scroller;
 
 import com.jn.young.pulltorefresh.header.DefaultHeader;
 import com.jn.young.pulltorefresh.header.IPtrHeader;
@@ -14,8 +18,6 @@ import com.jn.young.pulltorefresh.utils.PtrHandler;
 import com.jn.young.pulltorefresh.utils.PtrIndicator;
 import com.jn.young.pulltorefresh.utils.PtrLog;
 import com.jn.young.pulltorefresh.utils.PtrObserver;
-
-import java.util.logging.Handler;
 
 /**
  * Created by zjy on 2017/7/15.
@@ -38,6 +40,7 @@ public class PtrFrame extends ViewGroup {
     View mContent;
     private int mHeaderHeight;
     private int mTouchSlop;
+    private ScrollHelper mScroller;
 
     public PtrFrame(Context context) {
         super(context);
@@ -59,7 +62,12 @@ public class PtrFrame extends ViewGroup {
         mHandler = new PtrHandler();
         ViewConfiguration config = ViewConfiguration.get(context);
         mTouchSlop = config.getScaledTouchSlop();
+        mScroller = new ScrollHelper(new DecelerateInterpolator() );
 
+    }
+
+    public void setScrollInterpolator(Interpolator interpolator){
+        mScroller.setInterpolator(interpolator);
     }
 
     @Override
@@ -98,6 +106,7 @@ public class PtrFrame extends ViewGroup {
     @Override
     protected void onDetachedFromWindow() {
         removeCallbacks(mIdleExposeRunnable);
+        mScroller.destroy();
         super.onDetachedFromWindow();
     }
 
@@ -241,7 +250,7 @@ public class PtrFrame extends ViewGroup {
                     //TODO:NOT good declare here
                     float movementX = mIndicator.getMovementX();
                     float movementY = mIndicator.getMovementY();
-                    if (mIndicator.getOffsetY() > mTouchSlop && Math.abs(movementY) > Math.abs(movementX)) {
+                    if (mIndicator.getOffsetY() > mTouchSlop/2 && Math.abs(movementY) > Math.abs(movementX)) {
                         mIsBeingDragged = true;
                     }
                 }
@@ -262,11 +271,6 @@ public class PtrFrame extends ViewGroup {
 
 
     @Override
-    public boolean dispatchTouchEvent(MotionEvent ev) {
-        return super.dispatchTouchEvent(ev);
-    }
-
-    @Override
     public boolean onTouchEvent(MotionEvent ev) {
         final int action = ev.getAction();
         switch (action) {
@@ -275,8 +279,17 @@ public class PtrFrame extends ViewGroup {
                     mIndicator.setCurrentPos(ev.getX(), ev.getY());
                     float offSetY = -mIndicator.getOffsetY();
                     float moveMentY = -mIndicator.getMovementY();
-                    if (offSetY < 0 && (mHeader == null || Math.abs(offSetY) < ((IPtrHeader) mHeader).getMaxPullLenth())) {
-                        onPull((int) offSetY, (int) moveMentY);
+//                    PtrLog.i(LOG_TAG, "offset is %s, moveMentY is %s", offSetY, moveMentY);
+                    if (mHandler.getCurrentState() != PtrState.REFRESHING) {
+                        if (offSetY < 0 && (mHeader == null || Math.abs(offSetY) < ((IPtrHeader) mHeader).getMaxPullLenth())) {
+                            onPull((int) offSetY, (int) moveMentY);
+                        }
+                    } else {
+                        if (offSetY > 0 && ((IPtrHeader)mHeader).getIdleExposeTime() <= 0) {
+                            doScrollBack();
+                        } else {
+
+                        }
                     }
 
                 }
@@ -323,16 +336,23 @@ public class PtrFrame extends ViewGroup {
      */
     private void onPull(int len, int deltaLen) {
 
-        scrollBy(0, (int) (deltaLen * mHandler.onPull(len, mHeader, mObserver, mResilience)));//TODO:之后改成用detaLen * mResilience实现
+        scrollBy(0, (int) (deltaLen * mHandler.onPull(len, mHeader, mObserver, mResilience)));
+//        PtrLog.i(LOG_TAG, "pull ScrollY is %s", getScrollY());
     }
 
     /**
      * 类似于onreset或者resetstate
      */
     public void doScrollBack(){
-        scrollTo(0,0);
-        mHeader.scrollTo(0,0);
+        mScroller.smoothScrollTo(0, new OnScrollFinishListener() {
+            @Override
+            public void doOnscrollFinish() {
+                mHandler.onReset(mHeader, mObserver);
+            }
+        });
+        mHandler.onReset(mHeader, mObserver);
     }
+
 
     @Override
     protected ViewGroup.LayoutParams generateDefaultLayoutParams() {
@@ -369,21 +389,97 @@ public class PtrFrame extends ViewGroup {
         }
     }
 
+    interface OnScrollFinishListener{
+        void doOnscrollFinish();
+    }
+
     class ScrollHelper implements Runnable {
         public static final int SMOOTH_SCROLL_DURATION_MS = 200;
+        private boolean mIsRunning = false;
+        private int mFromY;
+        private int mToY;
+        private int mDuration;
+        private Scroller mScroller;
+        private long mStartTime = -1;
 
-        public void scrollTo(int to) {
-            scrollTo(to, SMOOTH_SCROLL_DURATION_MS);
+        OnScrollFinishListener mListener;
+        private  Interpolator mInterpolator;
+
+        public ScrollHelper(Interpolator interpolator){
+            mInterpolator = interpolator;
+            mScroller = new Scroller(getContext());
         }
 
-        public void scrollTo(int to, int duration){
+        public void setInterpolator(Interpolator interpolator){
+            mInterpolator = interpolator;
+        }
+
+        public void smoothScrollTo(int to, OnScrollFinishListener listener) {
+            smoothScrollTo(getScrollY(), to, SMOOTH_SCROLL_DURATION_MS, listener);
+        }
+
+        public void smoothScrollTo(int from, int to, OnScrollFinishListener listener){
+            smoothScrollTo(from, to, SMOOTH_SCROLL_DURATION_MS, listener);
+        }
+
+        public void smoothScrollTo(int from, int to, int duration, OnScrollFinishListener listener){
+            mIsRunning = true;
+            mFromY = from;
+            mToY = to;
+            mDuration = duration;
+            mListener = listener;
+            if (!mScroller.isFinished()) {
+                mScroller.forceFinished(true);
+            }
+            mScroller.startScroll(0, 0, 0, Math.abs(mFromY - mToY), duration);
+
+            post(this);
 
         }
 
 
         @Override
         public void run() {
+            boolean finish = (mToY > 0 && getScrollY() < mToY) || (mToY <= 0 && getScrollY() >=0 );
 
+            if (!finish) {
+                if (mStartTime == -1) {
+                    mStartTime = System.currentTimeMillis();
+                    PtrLog.i(LOG_TAG, "mFromY is %s", mFromY);
+                    PtrLog.i(LOG_TAG, "mStartTime is %s", mStartTime);
+                    PtrLog.i(LOG_TAG, "mToY is %s", mToY);
+                } else {
+                    long normalizedTime = (1000 * (System.currentTimeMillis() - mStartTime)) / mDuration;
+                    PtrLog.i(LOG_TAG, "normalizedTime is %s", normalizedTime);
+
+                    normalizedTime = Math.max(Math.min(normalizedTime, 1000), 0);
+                    final int deltaY = Math.round((mToY - mFromY)
+                            * mInterpolator.getInterpolation(normalizedTime / 1000f));
+                    final int finalDelta = Math.min(deltaY, getScrollY() - mToY);
+//                    PtrLog.i(LOG_TAG, "deltaY is %s", deltaY);
+//                    PtrLog.i(LOG_TAG, "finalDelta is %s", finalDelta);
+//                    PtrLog.i(LOG_TAG, "ScrollY is %s \n", getScrollY());
+                    scrollBy(0, deltaY);
+                }
+                postOnAnimation(this);
+            } else {
+                PtrLog.i(LOG_TAG, "finish, %s", System.currentTimeMillis());
+
+                finish();
+            }
+        }
+
+        public void destroy() {
+            finish();
+        }
+
+        private void finish(){
+            mIsRunning = false;
+            mStartTime = -1;
+            removeCallbacks(this);
+            if (mListener != null) {
+                mListener.doOnscrollFinish();
+            }
         }
     }
 }

@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.jn.young.pulltorefresh.PtrFrame;
 import com.jn.young.pulltorefresh.R;
@@ -14,7 +15,7 @@ import com.jn.young.pulltorefresh.utils.PtrHandler;
  * Created by zjy on 2017/7/16.
  */
 
-public class DefaultHeader extends View implements IPtrHeader {
+public class DefaultHeader extends android.support.v7.widget.AppCompatTextView implements IPtrHeader {
     public DefaultHeader(Context context) {
         super(context);
         init();
@@ -59,6 +60,7 @@ public class DefaultHeader extends View implements IPtrHeader {
 
     @Override
     public void onReset() {
+        setBackgroundColor(getContext().getResources().getColor(android.R.color.holo_green_light));
 
     }
 
@@ -95,8 +97,16 @@ public class DefaultHeader extends View implements IPtrHeader {
     }
 
     @Override
-    public int onRefreshComplete(PtrFrame frame) {
-        frame.doScrollBack();
+    public int onRefreshComplete(final PtrFrame frame) {
+        setText("刷新成功");
+        setBackgroundColor(getContext().getResources().getColor(android.R.color.holo_blue_bright));
+        postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                frame.doScrollBack();
+
+            }
+        }, 500);
         return 0;
     }
 }
