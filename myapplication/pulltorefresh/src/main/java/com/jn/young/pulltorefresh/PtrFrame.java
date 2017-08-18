@@ -440,7 +440,8 @@ public class PtrFrame extends ViewGroup {
 
         @Override
         public void run() {
-            boolean finish = (mToY > 0 && getScrollY() < mToY) || (mToY <= 0 && getScrollY() >=0 );
+            int currentY = getScrollY();
+            boolean finish = (mToY > 0 && currentY > mToY) || (mToY <= 0 && currentY > 0 ) || mToY == currentY;
 
             if (!finish) {
                 if (mStartTime == -1) {
@@ -450,16 +451,15 @@ public class PtrFrame extends ViewGroup {
                     PtrLog.i(LOG_TAG, "mToY is %s", mToY);
                 } else {
                     long normalizedTime = (1000 * (System.currentTimeMillis() - mStartTime)) / mDuration;
-                    PtrLog.i(LOG_TAG, "normalizedTime is %s", normalizedTime);
 
                     normalizedTime = Math.max(Math.min(normalizedTime, 1000), 0);
-                    final int deltaY = Math.round((mToY - mFromY)
+                    final int deltaY = Math.round((mFromY - mToY)
                             * mInterpolator.getInterpolation(normalizedTime / 1000f));
                     final int finalDelta = Math.min(deltaY, getScrollY() - mToY);
-//                    PtrLog.i(LOG_TAG, "deltaY is %s", deltaY);
-//                    PtrLog.i(LOG_TAG, "finalDelta is %s", finalDelta);
-//                    PtrLog.i(LOG_TAG, "ScrollY is %s \n", getScrollY());
-                    scrollBy(0, deltaY);
+                    PtrLog.i(LOG_TAG, "deltaY is %s", deltaY);
+                    PtrLog.i(LOG_TAG, "finalDelta is %s", finalDelta);
+                    PtrLog.i(LOG_TAG, "ScrollY is %s \n", getScrollY());
+                    scrollTo(0, mFromY - deltaY);
                 }
                 postOnAnimation(this);
             } else {
