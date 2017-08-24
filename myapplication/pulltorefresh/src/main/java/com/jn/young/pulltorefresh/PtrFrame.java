@@ -33,6 +33,7 @@ public class PtrFrame extends ViewGroup {
     private boolean mIsBeingDragged;
 
     private Runnable mIdleExposeRunnable;
+    private Runnable mScrollBackRunnable;
 
     public float mResilience = 1f;
     public boolean mPinnedContent = false;
@@ -131,6 +132,8 @@ public class PtrFrame extends ViewGroup {
             throw new IllegalArgumentException("header should implements IPtrHeader");
         }
         mHeader = header;
+        removeView(mHeader);
+        addView(mHeader, 0);
         invalidate();
         requestLayout();
     }
@@ -158,8 +161,8 @@ public class PtrFrame extends ViewGroup {
         }
     }
 
-    public void onFetchComplete(){
-        mHandler.onRefreshComplete(mHeader, this);
+    public void onFetchComplete(String refrshTip){
+        mHandler.onRefreshComplete(mHeader, this, refrshTip);
     }
 
     /**
@@ -168,12 +171,18 @@ public class PtrFrame extends ViewGroup {
      * @param needScroll
      * @param forceRefresh
      */
-    public void setRefreshing(boolean needScroll, boolean forceRefresh) {
+    public void setRefresh (boolean needScroll, boolean forceRefresh) {
         if (!needScroll) {
             refetchData(forceRefresh);
         } else {
             //1.判断是否允许强制刷新，如果允许的话，则判断当前的状态，如果为正在刷新状态，则重新取回数据，如果是正在滚动状态，需要停止滚动，并且滚动到刷新位置进行下一次刷新
             //2.observer的状态需要正确置位
+            mScroller.smoothScrollTo(-((IPtrHeader) mHeader).getRefreshingPos(), new OnScrollFinishListener() {
+                @Override
+                public void doOnscrollFinish() {
+                    mHandler.onRefresh(mHeader, mObserver);
+                }
+            });
         }
     }
 
@@ -287,8 +296,6 @@ public class PtrFrame extends ViewGroup {
                     } else {
                         if (offSetY > 0 && ((IPtrHeader)mHeader).getIdleExposeTime() <= 0) {
                             doScrollBack();
-                        } else {
-
                         }
                     }
 
@@ -304,6 +311,14 @@ public class PtrFrame extends ViewGroup {
             case MotionEvent.ACTION_CANCEL:
                 if (mIsBeingDragged) {
                     if (mHandler.getCurrentState() == PtrState.PULLTOREFRESH) {
+                        if (mIndicator.getOffsetY() < ((IPtrHeader)mHeader).getRefreshingPos()){
+                            mScroller.smoothScrollTo(-((IPtrHeader)mHeader).getRefreshingPos(), new OnScrollFinishListener() {
+                                @Override
+                                public void doOnscrollFinish() {
+                                    mHandler.onRefresh(mHeader, mObserver);
+                                }
+                            });
+                        }
                         mHandler.onRefresh(mHeader, mObserver);
                     } else {
                         if (((IPtrHeader)mHeader).getIdleExposeTime() > 0) {
@@ -350,7 +365,24 @@ public class PtrFrame extends ViewGroup {
                 mHandler.onReset(mHeader, mObserver);
             }
         });
-        mHandler.onReset(mHeader, mObserver);
+    }
+
+
+    public void doScrollBackAfter(int afterTimeInMill) {
+        if (mScrollBackRunnable == null) {
+            mScrollBackRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    mScroller.smoothScrollTo(0, new OnScrollFinishListener() {
+                        @Override
+                        public void doOnscrollFinish() {
+                            mHandler.onReset(mHeader, mObserver);
+                        }
+                    });
+                }
+            };
+        }
+        postDelayed(mScrollBackRunnable, afterTimeInMill);
     }
 
 

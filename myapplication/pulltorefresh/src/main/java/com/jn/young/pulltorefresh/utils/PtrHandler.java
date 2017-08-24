@@ -75,7 +75,18 @@ public class PtrHandler {
     public static class PullResult{
         public boolean atPullToRequestRealm;
         public float newResilience;
+
+        public PullResult(){
+
+        }
+
+        public PullResult(float resilience){
+            atPullToRequestRealm = true;
+            newResilience = resilience;
+        }
     }
+
+
     public float onPull(float lenth, View header,  PtrObserver ptrObserver, float resilience) {
         lenth = Math.abs(lenth);
         PullResult result = ((IPtrHeader)header).onPull(lenth, resilience);
@@ -111,8 +122,8 @@ public class PtrHandler {
         }
     }
 
-    public void onRefreshComplete(View header, PtrFrame frame) {
-        ((IPtrHeader)header).onRefreshComplete(frame);
+    public void onRefreshComplete(View header, PtrFrame frame, String refreshTip) {
+        ((IPtrHeader)header).onRefreshComplete(frame, refreshTip);
     }
 
     public PtrState getCurrentState(){

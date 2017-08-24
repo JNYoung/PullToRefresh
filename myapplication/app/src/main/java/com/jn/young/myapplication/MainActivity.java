@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        frame.onFetchComplete();
+                        frame.onFetchComplete("刷新成功");
                     }
                 }, 1000);
             }
@@ -61,6 +61,20 @@ public class MainActivity extends AppCompatActivity {
         mRecyclerView = (RecyclerView)findViewById(R.id.id_recyclerview);
         mRecyclerView.setAdapter(new HomeAdapter());
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        findViewById(R.id.refresh_without_anim).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                frame.setRefresh(false, false);
+            }
+        });
+
+        findViewById(R.id.refresh_with_anim).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                frame.setRefresh(true, false);
+            }
+        });
     }
 
     protected void initData() {

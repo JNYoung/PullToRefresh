@@ -85,6 +85,10 @@ public class DefaultHeader extends android.support.v7.widget.AppCompatTextView i
     @Override
     public PtrHandler.PullResult onPull(float len, float resilience) {
         PtrHandler.PullResult result = new PtrHandler.PullResult();
+        if (len < 200) {
+            result.atPullToRequestRealm = false;
+            result.newResilience = resilience;
+        }
         if (len > 200 && len < 500) {
             result.atPullToRequestRealm = true;
             result.newResilience = resilience;
@@ -97,7 +101,12 @@ public class DefaultHeader extends android.support.v7.widget.AppCompatTextView i
     }
 
     @Override
-    public int onRefreshComplete(final PtrFrame frame) {
+    public int getRefreshingPos() {
+        return 500;
+    }
+
+    @Override
+    public int onRefreshComplete(final PtrFrame frame, String tip) {
         setText("刷新成功");
         setBackgroundColor(getContext().getResources().getColor(android.R.color.holo_blue_bright));
         postDelayed(new Runnable() {

@@ -24,7 +24,7 @@ public interface IPtrHeader extends IPtrActionCirlce{
      * 刷新完成的操作，接下来是回滚
      * @return 还需要延迟的时间
      */
-    int onRefreshComplete(PtrFrame frame);
+    int onRefreshComplete(PtrFrame frame, String refreshTip);
 
 
     /**
@@ -33,5 +33,11 @@ public interface IPtrHeader extends IPtrActionCirlce{
      * @return 是否到达了PUllTOREFRESH
      */
     PtrHandler.PullResult onPull(float len, float resilience);
+
+    /**
+     * 刷新时候的曝光长度，从外部调用滚动刷新时候
+     * @return 刷新过程中的位置
+     */
+    int getRefreshingPos();
 
 }
