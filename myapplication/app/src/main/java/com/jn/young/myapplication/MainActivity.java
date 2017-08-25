@@ -75,6 +75,8 @@ public class MainActivity extends AppCompatActivity {
                 frame.setRefresh(true, false);
             }
         });
+        TempDoubleDragHeader header = new TempDoubleDragHeader(this);
+        frame.setHeader(header);
     }
 
     protected void initData() {

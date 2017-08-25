@@ -288,9 +288,9 @@ public class PtrFrame extends ViewGroup {
                     mIndicator.setCurrentPos(ev.getX(), ev.getY());
                     float offSetY = -mIndicator.getOffsetY();
                     float moveMentY = -mIndicator.getMovementY();
-//                    PtrLog.i(LOG_TAG, "offset is %s, moveMentY is %s", offSetY, moveMentY);
                     if (mHandler.getCurrentState() != PtrState.REFRESHING) {
                         if (offSetY < 0 && (mHeader == null || Math.abs(offSetY) < ((IPtrHeader) mHeader).getMaxPullLenth())) {
+                        PtrLog.i(LOG_TAG, "offset is %s", getScrollY());
                             onPull((int) offSetY, (int) moveMentY);
                         }
                     } else {
@@ -478,9 +478,6 @@ public class PtrFrame extends ViewGroup {
             if (!finish) {
                 if (mStartTime == -1) {
                     mStartTime = System.currentTimeMillis();
-                    PtrLog.i(LOG_TAG, "mFromY is %s", mFromY);
-                    PtrLog.i(LOG_TAG, "mStartTime is %s", mStartTime);
-                    PtrLog.i(LOG_TAG, "mToY is %s", mToY);
                 } else {
                     long normalizedTime = (1000 * (System.currentTimeMillis() - mStartTime)) / mDuration;
 
@@ -488,15 +485,10 @@ public class PtrFrame extends ViewGroup {
                     final int deltaY = Math.round((mFromY - mToY)
                             * mInterpolator.getInterpolation(normalizedTime / 1000f));
                     final int finalDelta = Math.min(deltaY, getScrollY() - mToY);
-                    PtrLog.i(LOG_TAG, "deltaY is %s", deltaY);
-                    PtrLog.i(LOG_TAG, "finalDelta is %s", finalDelta);
-                    PtrLog.i(LOG_TAG, "ScrollY is %s \n", getScrollY());
                     scrollTo(0, mFromY - deltaY);
                 }
                 postOnAnimation(this);
             } else {
-                PtrLog.i(LOG_TAG, "finish, %s", System.currentTimeMillis());
-
                 finish();
             }
         }
